@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Rekap Tabungan & Hutang Modal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              green: '#22c55e',
+              emerald: '#10b981',
+              red: '#ef4444',
+              amber: '#f59e0b',
+              blue: '#3b82f6',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Header Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">FinTrack Sheets</h1>
+          <p class="text-xs text-slate-500">Pencatat Saldo Tabungan & Hutang Modal</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <!-- Button: Penjelasan / Pemahaman Kebutuhan -->
+        <button onclick="toggleModal('modalPemahaman', true)" class="px-3 py-2 text-xs sm:text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex items-center gap-1.5 border border-emerald-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="hidden sm:inline">Rangkuman</span> Pemahaman
+        </button>
+
+        <!-- Button: Tambah Rekening / Pos Baru -->
+        <button onclick="toggleModal('modalAddAccount', true)" class="px-3 py-2 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Tambah Rekening</span>
+        </button>
+
+        <!-- Button: Konfigurasi Google Sheets -->
+        <button onclick="toggleModal('modalSheets', true)" class="px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-300">
+          <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+          <span class="hidden sm:inline">Koneksi</span> Google Sheet
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+
+    <!-- Ringkasan Kartu Utama (Tabungan, Hutang, Total Aset) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <!-- Kartu Total Tabungan -->
+      <div class="bg-white rounded-2xl p-5 border border-emerald-200 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> TABUNGAN
+          </span>
+          <span id="tabunganCountBadge" class="text-xs text-slate-400 font-medium">9 Rekening</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-1 font-medium">Total Akumulasi Saldo</p>
+        <h2 id="totalTabunganDisplay" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight">Rp 25.312.570</h2>
+        <p class="text-[11px] text-slate-400 mt-2">BCA, BRI, Seabank, Jenius, Jagoo, dll</p>
+      </div>
+
+      <!-- Kartu Total Hutang Modal -->
+      <div class="bg-white rounded-2xl p-5 border border-rose-200 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+            <span class="w-2 h-2 rounded-full bg-rose-600"></span> HUTANG MODAL
+          </span>
+          <span id="hutangCountBadge" class="text-xs text-slate-400 font-medium">3 Sumber</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-1 font-medium">Kewajiban / Pinjaman Aktif</p>
+        <h2 id="totalHutangDisplay" class="text-2xl sm:text-3xl font-extrabold text-rose-600 tracking-tight">Rp 5.400.000</h2>
+        <p class="text-[11px] text-slate-400 mt-2">Shopee Paylater, SpPinjam, Tiktok Paylater</p>
+      </div>
+
+      <!-- Kartu Total Aset Liquid -->
+      <div class="bg-white rounded-2xl p-5 border border-amber-300 shadow-sm relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-white">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-100/60 rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span> TOTAL ASET LIQUID
+          </span>
+          <span class="text-xs font-medium text-amber-700">Tabungan + Modal</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-1 font-medium">Likuiditas Dana Bergerak</p>
+        <h2 id="totalLiquidDisplay" class="text-2xl sm:text-3xl font-extrabold text-amber-700 tracking-tight">Rp 30.712.570</h2>
+        <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2">
+          <span>Aset Bersih (Net): <strong id="netWorthDisplay" class="text-slate-800 font-semibold">Rp 19.912.570</strong></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Form Input Transaksi & Rincian Rekening -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Kolom Kiri: Form Input Transaksi Debit / Kredit -->
+      <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Input Transaksi Baru
+            </h3>
+            <p class="text-xs text-slate-500">Perbarui saldo rekening & kirim ke Google Sheet</p>
+          </div>
+          <span id="syncBadge" class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Siap
+          </span>
+        </div>
+
+        <form id="transactionForm" onsubmit="handleTransactionSubmit(event)" class="space-y-4">
+          
+          <!-- Tombol Pilihan Tipe: Debit vs Kredit -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Jenis Transaksi</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="cursor-pointer">
+                <input type="radio" name="txType" value="DEBIT" class="peer sr-only" checked onchange="updateTypeHelper()">
+                <div class="p-3 text-center rounded-xl border border-slate-200 bg-white peer-checked:border-emerald-500 peer-checked:bg-emerald-50/70 peer-checked:text-emerald-800 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                  </svg>
+                  DEBIT (Masuk)
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="txType" value="KREDIT" class="peer sr-only" onchange="updateTypeHelper()">
+                <div class="p-3 text-center rounded-xl border border-slate-200 bg-white peer-checked:border-rose-500 peer-checked:bg-rose-50/70 peer-checked:text-rose-800 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                  </svg>
+                  KREDIT (Keluar)
+                </div>
+              </label>
+            </div>
+            <p id="txTypeDesc" class="text-[11px] text-emerald-600 mt-1.5 font-medium">
+              * Debit menambah saldo rekening tabungan atau melunasi/mengurangi hutang modal.
+            </p>
+          </div>
+
+          <!-- Pilihan Rekening / Pos -->
+          <div>
+            <label for="accountSelect" class="block text-xs font-semibold text-slate-700 mb-1.5">Pilih Rekening / Pos</label>
+            <select id="accountSelect" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all">
+              <optgroup label="TABUNGAN">
+                <option value="JENIUS">JENIUS (Saldo: Rp 7.386.423)</option>
+                <option value="BRI">BRI (Saldo: Rp 6.354.576)</option>
+                <option value="SEABANK">SEABANK (Saldo: Rp 10.507.882)</option>
+                <option value="BLUE BCA">BLUE BCA (Saldo: Rp 1.038.665)</option>
+                <option value="BCA">BCA (Saldo: Rp 500)</option>
+                <option value="JAGOO">JAGOO (Saldo: Rp 10.000)</option>
+                <option value="NEOBANK">NEOBANK (Saldo: Rp 9.424)</option>
+                <option value="SHOPEEPAY">SHOPEEPAY (Saldo: Rp 5.000)</option>
+                <option value="GOPAY">GOPAY (Saldo: Rp 100)</option>
+              </optgroup>
+              <optgroup label="HUTANG MODAL">
+                <option value="SHOPEE PAYLATER">SHOPEE PAYLATER (Hutang: Rp 300.000)</option>
+                <option value="SPINJAM">SPINJAM (Hutang: Rp 3.800.000)</option>
+                <option value="TIKTOK PAYLATER">TIKTOK PAYLATER (Hutang: Rp 1.300.000)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Input Nominal Rupiah -->
+          <div>
+            <label for="nominalInput" class="block text-xs font-semibold text-slate-700 mb-1.5">Nominal Transaksi (Rp)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-semibold text-sm">Rp</span>
+              <input type="text" id="nominalInput" required placeholder="0" oninput="formatRupiahInput(this)" class="w-full pl-11 pr-4 py-2.5 text-sm font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all">
+            </div>
+          </div>
+
+          <!-- Keterangan & Tanggal -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="txDate" class="block text-xs font-semibold text-slate-700 mb-1.5">Tanggal</label>
+              <input type="date" id="txDate" required class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+            <div>
+              <label for="txCategory" class="block text-xs font-semibold text-slate-700 mb-1.5">Kategori</label>
+              <select id="txCategory" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="Pemasukan / Gaji">Pemasukan / Gaji</option>
+                <option value="Hasil Penjualan / Usaha">Hasil Usaha</option>
+                <option value="Transfer Antar Rekening">Transfer Rekening</option>
+                <option value="Belanja / Operasional">Belanja / Operasional</option>
+                <option value="Bayar Cicilan / Hutang">Bayar Hutang</option>
+                <option value="Penarikan Pinjaman Baru">Penarikan Pinjaman</option>
+                <option value="Lain-lain">Lain-lain</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="txNotes" class="block text-xs font-semibold text-slate-700 mb-1.5">Catatan / Keterangan (Opsional)</label>
+            <input type="text" id="txNotes" placeholder="Cth: Transfer jualan shopee, bayar tagihan tgl 10" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="pt-2">
+            <button type="submit" id="btnSubmitTx" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-semibold text-sm transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Simpan Transaksi & Update Saldo
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Kolom Kanan: Rincian Akun Tabungan & Hutang Modal (Sesuai Gambar Sheet) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Bagian Tabungan (Hijau) -->
+        <div class="bg-white rounded-2xl border border-emerald-200 overflow-hidden shadow-sm">
+          <div class="bg-emerald-100/80 px-5 py-3 border-b border-emerald-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+              <h3 class="font-extrabold text-emerald-900 tracking-wide text-sm sm:text-base">TABUNGAN</h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-emerald-800" id="headerTabunganTotal">Rp 25.312.570</span>
+              <button onclick="openAddAccountModalWithType('TABUNGAN')" title="Tambah Tabungan Baru" class="p-1 rounded bg-white/70 hover:bg-white text-emerald-700 hover:text-emerald-900 transition-all text-xs font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span class="hidden sm:inline">Tambah</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="tabunganListContainer">
+            <!-- Account Cards will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- Bagian Hutang Modal (Merah Muda) -->
+        <div class="bg-white rounded-2xl border border-rose-200 overflow-hidden shadow-sm">
+          <div class="bg-rose-100/80 px-5 py-3 border-b border-rose-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+              <h3 class="font-extrabold text-rose-900 tracking-wide text-sm sm:text-base">HUTANG MODAL</h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-rose-800" id="headerHutangTotal">Rp 5.400.000</span>
+              <button onclick="openAddAccountModalWithType('HUTANG MODAL')" title="Tambah Hutang Modal Baru" class="p-1 rounded bg-white/70 hover:bg-white text-rose-700 hover:text-rose-900 transition-all text-xs font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span class="hidden sm:inline">Tambah</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3" id="hutangListContainer">
+            <!-- Hutang Cards will be populated by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Tabel Riwayat Transaksi -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Riwayat Transaksi & Mutasi</h3>
+          <p class="text-xs text-slate-500">Semua aktivitas debit/kredit yang tercatat dalam aplikasi</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <!-- Tombol Bersihkan Riwayat (Merah) -->
+          <button onclick="openClearHistoryModal()" class="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors flex items-center gap-1 shadow-xs">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Bersihkan Riwayat</span>
+          </button>
+
+          <!-- Tombol Export CSV -->
+          <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </button>
+          <!-- Tombol Sync ke Google Sheet Manual -->
+          <button onclick="syncAllToGoogleSheets()" class="px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-1 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Sync Google Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Table container with horizontal scroll -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+            <tr>
+              <th class="px-4 py-3">Tanggal</th>
+              <th class="px-4 py-3">Rekening</th>
+              <th class="px-4 py-3">Tipe</th>
+              <th class="px-4 py-3">Nominal</th>
+              <th class="px-4 py-3">Kategori & Keterangan</th>
+              <th class="px-4 py-3">Saldo Akun Akhir</th>
+              <th class="px-4 py-3 text-center">Status Sync</th>
+              <th class="px-4 py-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTableBody" class="divide-y divide-slate-100 text-slate-700">
+            <!-- Will be populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="emptyTableState" class="hidden p-8 text-center text-slate-400 text-xs">
+        Belum ada riwayat transaksi yang dimasukkan.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: Tambah Rekening / Pos Baru (Dinamis) -->
+  <div id="modalAddAccount" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Tambah Rekening / Pos Baru</h3>
+            <p class="text-xs text-slate-500">Tambahkan pos bank, e-wallet, atau sumber pinjaman</p>
+          </div>
+        </div>
+        <button onclick="toggleModal('modalAddAccount', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="addAccountForm" onsubmit="handleAccountSubmit(event)" class="space-y-4">
+        <!-- Pilihan Kelompok Pos -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kelompok Pos</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <label class="cursor-pointer">
+              <input type="radio" name="newAccountType" value="TABUNGAN" class="peer sr-only" checked id="radioNewTabungan">
+              <div class="p-2.5 text-center rounded-xl border border-slate-200 bg-white peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-800 transition-all font-semibold text-xs flex items-center justify-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Tabungan (Aset)
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="newAccountType" value="HUTANG MODAL" class="peer sr-only" id="radioNewHutang">
+              <div class="p-2.5 text-center rounded-xl border border-slate-200 bg-white peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-800 transition-all font-semibold text-xs flex items-center justify-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                Hutang Modal
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Nama Rekening / Pos -->
+        <div>
+          <label for="newAccountName" class="block text-xs font-semibold text-slate-700 mb-1">Nama Rekening / Pos</label>
+          <input type="text" id="newAccountName" required placeholder="Cth: BSI, DANA, OVO, KARTU KREDIT" class="w-full px-3 py-2 text-sm uppercase bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1">Nama akan otomatis disesuaikan dengan huruf kapital.</p>
+        </div>
+
+        <!-- Saldo Awal -->
+        <div>
+          <label for="newAccountBalance" class="block text-xs font-semibold text-slate-700 mb-1">Saldo Awal / Sisa Hutang Saat Ini</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-sm">Rp</span>
+            <input type="text" id="newAccountBalance" placeholder="0" oninput="formatRupiahInput(this)" class="w-full pl-10 pr-3 py-2 text-sm font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="toggleModal('modalAddAccount', false)" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Simpan Rekening Baru
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 1: Penjelasan Pemahaman Gambar & Kebutuhan Pengguna -->
+  <div id="modalPemahaman" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            💡
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-lg">Penjabaran & Pemahaman Kebutuhan</h3>
+            <p class="text-xs text-slate-500">Analisis dari gambar spreadsheet & alur kerja yang diinginkan</p>
+          </div>
+        </div>
+        <button onclick="toggleModal('modalPemahaman', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+        <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200">
+          <h4 class="font-bold text-emerald-900 mb-1">1. Pemahaman Terhadap Gambar Spreadsheet</h4>
+          <ul class="list-disc list-inside space-y-1 text-emerald-800">
+            <li><strong>TABUNGAN (Pos Aset Hijau):</strong> Terdiri dari 9 rekening bank & dompet digital (Jenius, BRI, Seabank, Blue BCA, BCA, Jagoo, Neobank, Shopeepay, Gopay) dengan akumulasi awal <strong>Rp 25.312.570</strong>.</li>
+            <li><strong>HUTANG MODAL (Pos Kewajiban Merah):</strong> Terdiri dari 3 sumber pembiayaan/paylater (Shopee Paylater, SpPinjam, Tiktok Paylater) dengan total saldo pinjaman <strong>Rp 5.400.000</strong>.</li>
+            <li><strong>TOTAL ASET LIQUID (Kuning):</strong> Sebesar <strong>Rp 30.712.570</strong>, didapat dari penjumlahan dana tabungan dan modal pinjaman yang saat ini aktif/dapat diputar.</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-blue-50 rounded-xl border border-blue-200">
+          <h4 class="font-bold text-blue-900 mb-1">2. Yang Anda Inginkan dalam Aplikasi</h4>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li><strong>Form Input Debit / Kredit:</strong> Pengguna dapat mencatat mutasi keluar (kredit) maupun masuk (debit) secara cepat.</li>
+            <li><strong>Pilihan Rekening:</strong> Dropdown otomatis berisi 12 rekening/pos sesuai gambar untuk memilih rekening mana yang terpengaruh transaksi.</li>
+            <li><strong>Penyimpanan ke Google Sheet:</strong> Data transaksi dan pembaruan saldo dikirimkan secara langsung ke Google Spreadsheet Anda via integrasi Google Apps Script (Web App).</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+          <h4 class="font-bold text-slate-900 mb-1">3. Cara Kerja Logika Debit & Kredit pada Aplikasi Ini</h4>
+          <p>
+            • Untuk <strong>TABUNGAN</strong>: <span class="text-emerald-700 font-semibold">Debit</span> menambah saldo tabungan, sedangkan <span class="text-rose-600 font-semibold">Kredit</span> mengurangi saldo tabungan.<br>
+            • Untuk <strong>HUTANG MODAL</strong>: <span class="text-emerald-700 font-semibold">Debit</span> adalah pelunasan cicilan (mengurangi sisa hutang), sedangkan <span class="text-rose-600 font-semibold">Kredit</span> adalah penarikan pinjaman baru (menambah hutang).
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="toggleModal('modalPemahaman', false)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold">
+          Saya Mengerti, Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Pengaturan Google Sheets & Kode Apps Script Siap Pakai -->
+  <div id="modalSheets" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            📊
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-lg">Integrasi Google Sheets</h3>
+            <p class="text-xs text-slate-500">Hubungkan aplikasi ini langsung ke Google Sheet milik Anda</p>
+          </div>
+        </div>
+        <button onclick="toggleModal('modalSheets', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Input URL Web App Google Script -->
+      <div>
+        <label for="scriptUrlInput" class="block text-xs font-bold text-slate-700 mb-1">
+          Google Apps Script Web App URL (Endpoint)
+        </label>
+        <div class="flex gap-2">
+          <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <button onclick="saveSheetUrl()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold">
+            Simpan URL
+          </button>
+          <button onclick="fetchBalancesFromGoogleSheets()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Tarik Saldo Sekarang
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1">URL ini akan dipakai untuk mengirim transaksi dan menarik saldo dari sheet "Ringkasan_Saldo".</p>
+      </div>
+
+      <!-- Panduan 3 Langkah Cepat -->
+      <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-2">
+        <h4 class="font-bold flex items-center gap-1.5">
+          <span>🚀</span> Panduan 3 Langkah Memasang di Google Sheet Anda:
+        </h4>
+        <ol class="list-decimal list-inside space-y-1 text-amber-800">
+          <li>Buka file <strong>Google Sheets</strong> Anda, lalu klik menu <strong>Extensions (Ekstensi)</strong> &gt; <strong>Apps Script</strong>.</li>
+          <li>Hapus kode bawaan, lalu salin dan tempelkan kode di bawah ini ke editor Apps Script.</li>
+          <li>Klik <strong>Deploy (Terapkan)</strong> &gt; <strong>New Deployment (Penerapan Baru)</strong> &gt; pilih jenis <strong>Web App</strong>. Set "Who has access" ke <strong>Anyone (Siapa saja)</strong>, lalu salin Web App URL-nya dan tempel ke kotak di atas!</li>
+        </ol>
+      </div>
+
+      <!-- Kode Apps Script Siap Salin -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-bold text-slate-700">Kode Google Apps Script (Code.gs):</span>
+          <button onclick="copyAppsScriptCode()" class="text-xs text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+            </svg>
+            Salin Kode Skrip
+          </button>
+        </div>
+        <pre id="codeBlock" class="p-3 bg-slate-900 text-slate-100 rounded-xl text-[11px] font-mono overflow-x-auto max-h-60 border border-slate-800 leading-relaxed select-all">
+/**
+ * FinTrack Sheets - Google Apps Script (Code.gs)
+ * Mendukung 2-Way Sync:
+ * 1. doGet  -> Mengambil saldo & nama pos dari sheet "Ringkasan_Saldo" ke aplikasi web.
+ * 2. doPost -> Menyimpan mutasi transaksi & menyusun ulang "Ringkasan_Saldo" secara dinamis.
+ */
+
+// ==========================================
+// 1. FUNGSI UNTUK MENARIK SALDO KE APLIKASI WEB
+// ==========================================
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var summarySheet = ss.getSheetByName("Ringkasan_Saldo");
+    
+    if (!summarySheet) {
+      return responseJSON({ status: "error", message: "Sheet Ringkasan_Saldo belum ada." }, e);
+    }
+
+    var data = summarySheet.getDataRange().getValues();
+    var tabKeys = [];
+    var hutKeys = [];
+    var balances = {};
+    var currentGroup = ""; // "TABUNGAN" atau "HUTANG"
+
+    for (var i = 0; i < data.length; i++) {
+      var colA = String(data[i][0] || "").trim();
+      var colB = data[i][1];
+
+      if (!colA) continue;
+
+      var upperA = colA.toUpperCase();
+      if (upperA === "TABUNGAN") {
+        currentGroup = "TABUNGAN";
+        continue;
+      } else if (upperA === "HUTANG MODAL" || upperA === "HUTANG") {
+        currentGroup = "HUTANG";
+        continue;
+      } else if (upperA === "TOTAL" || upperA.indexOf("TOTAL ASET") !== -1) {
+        currentGroup = "";
+        continue;
+      }
+
+      var numVal = Number(colB) || 0;
+      if (currentGroup === "TABUNGAN") {
+        tabKeys.push(colA);
+        balances[colA] = numVal;
+      } else if (currentGroup === "HUTANG") {
+        hutKeys.push(colA);
+        balances[colA] = numVal;
+      }
+    }
+
+    return responseJSON({
+      status: "success",
+      tabunganKeys: tabKeys,
+      hutangKeys: hutKeys,
+      balances: balances
+    }, e);
+
+  } catch (err) {
+    return responseJSON({ status: "error", message: err.toString() }, e);
+  }
+}
+
+// Helper untuk format JSON / JSONP (menghindari kendala CORS di browser)
+function responseJSON(obj, e) {
+  var jsonStr = JSON.stringify(obj);
+  var callback = (e && e.parameter && e.parameter.callback) ? e.parameter.callback : null;
+  if (callback) {
+    return ContentService.createTextOutput(callback + "(" + jsonStr + ")")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(jsonStr)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ==========================================
+// 2. FUNGSI UNTUK MENERIMA DATA DARI APLIKASI WEB
+// ==========================================
+function doPost(e) {
+  try {
+    var raw = (e && e.postData && e.postData.contents) ? e.postData.contents : "{}";
+    var data = JSON.parse(raw);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    // A. Bersihkan sheet Transaksi jika diminta
+    if (data.action === "CLEAR_TRANSACTIONS") {
+      var txSheet = ss.getSheetByName("Transaksi");
+      if (txSheet) {
+        txSheet.clear();
+        txSheet.appendRow(["ID Transaksi", "Tanggal", "Rekening", "Tipe", "Nominal", "Kategori", "Keterangan", "Saldo Akhir Akun"]);
+        txSheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // B. Catat mutasi transaksi baru jika ada
+    if (data.action === "ADD_TRANSACTION" && data.transaction) {
+      var txSheet = ss.getSheetByName("Transaksi") || ss.insertSheet("Transaksi");
+      if (txSheet.getLastRow() === 0) {
+        txSheet.appendRow(["ID Transaksi", "Tanggal", "Rekening", "Tipe", "Nominal", "Kategori", "Keterangan", "Saldo Akhir Akun"]);
+        txSheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      var tx = data.transaction;
+      txSheet.appendRow([
+        tx.id,
+        tx.date,
+        tx.account,
+        tx.type,
+        Number(tx.amount || 0),
+        tx.category,
+        tx.notes,
+        Number(tx.resultingBalance || 0)
+      ]);
+      var lastRow = txSheet.getLastRow();
+      txSheet.getRange(lastRow, 5).setNumberFormat("#,##0");
+      txSheet.getRange(lastRow, 8).setNumberFormat("#,##0");
+    }
+    
+    // C. Tulis ulang lembar Ringkasan_Saldo dari sel A1 secara rapi & dinamis
+    var summarySheet = ss.getSheetByName("Ringkasan_Saldo") || ss.insertSheet("Ringkasan_Saldo");
+    summarySheet.clear();
+    
+    var tabKeys = data.tabunganKeys || [];
+    var hutKeys = data.hutangKeys || [];
+    var balances = data.balances || {};
+    
+    var rows = [];
+    
+    // Bagian 1: Tabungan
+    rows.push(["TABUNGAN", ""]);
+    var tabStartRow = 2;
+    for (var i = 0; i < tabKeys.length; i++) {
+      var k = tabKeys[i];
+      rows.push([k, Number(balances[k] || 0)]);
+    }
+    var tabEndRow = rows.length;
+    var totalTabRow = tabEndRow + 1;
+    rows.push(["TOTAL", 0]);
+    
+    // Baris kosong pemisah
+    rows.push(["", ""]);
+    
+    // Bagian 2: Hutang Modal
+    var hutHeaderRow = rows.length + 1;
+    rows.push(["HUTANG MODAL", ""]);
+    var hutStartRow = hutHeaderRow + 1;
+    for (var j = 0; j < hutKeys.length; j++) {
+      var hk = hutKeys[j];
+      rows.push([hk, Number(balances[hk] || 0)]);
+    }
+    var hutEndRow = rows.length;
+    var totalHutRow = hutEndRow + 1;
+    rows.push(["TOTAL", 0]);
+    
+    // Baris kosong pemisah
+    rows.push(["", ""]);
+    
+    // Bagian 3: Total Aset Liquid
+    var liquidRow = rows.length + 1;
+    rows.push(["TOTAL ASET LIQUID", 0]);
+    
+    // Tulis matriks data ke range A1:B...
+    var range = summarySheet.getRange(1, 1, rows.length, 2);
+    range.setValues(rows);
+    
+    // Pasang Formula Google Sheets Resmi
+    if (tabEndRow >= tabStartRow) {
+      summarySheet.getRange("B" + totalTabRow).setFormula("=SUM(B" + tabStartRow + ":B" + tabEndRow + ")");
+    }
+    if (hutEndRow >= hutStartRow) {
+      summarySheet.getRange("B" + totalHutRow).setFormula("=SUM(B" + hutStartRow + ":B" + hutEndRow + ")");
+    }
+    summarySheet.getRange("B" + liquidRow).setFormula("=B" + totalTabRow + "+B" + totalHutRow);
+    
+    // Pewarnaan / Styling Persis Gambar Screenshot:
+    summarySheet.getRange("A1:B1").setFontWeight("bold").setBackground("#bbf7d0").setFontColor("#14532d");
+    summarySheet.getRange("A" + totalTabRow + ":B" + totalTabRow).setFontWeight("bold").setBackground("#86efac").setFontColor("#14532d");
+    summarySheet.getRange("A" + hutHeaderRow + ":B" + hutHeaderRow).setFontWeight("bold").setBackground("#fecdd3").setFontColor("#881337");
+    summarySheet.getRange("A" + totalHutRow + ":B" + totalHutRow).setFontWeight("bold").setBackground("#fda4af").setFontColor("#881337");
+    summarySheet.getRange("A" + liquidRow + ":B" + liquidRow).setFontWeight("bold").setBackground("#fef08a").setFontColor("#713f12");
+    
+    summarySheet.getRange("B2:B" + liquidRow).setNumberFormat("#,##0");
+    summarySheet.setColumnWidth(1, 220);
+    summarySheet.setColumnWidth(2, 160);
+    
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+        </pre>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <span id="saveSheetAlert" class="text-xs text-emerald-600 font-semibold hidden">URL berhasil disimpan!</span>
+        <button onclick="toggleModal('modalSheets', false)" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold ml-auto">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Konfirmasi Bersihkan Riwayat Transaksi -->
+  <div id="modalClearHistory" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 p-6 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Bersihkan Riwayat Transaksi?</h3>
+          <p class="text-xs text-slate-500">Hapus catatan mutasi pada tabel transaksi</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
+        Catatan: Saldo rekening saat ini <strong>tidak akan berubah</strong>. Tindakan ini hanya membersihkan baris catatan mutasi riwayat transaksi.
+      </p>
+
+      <div class="pt-1">
+        <label class="flex items-start gap-2.5 cursor-pointer select-none">
+          <input type="checkbox" id="clearFromSheetCheckbox" class="mt-0.5 rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+          <span class="text-xs text-slate-700 font-medium leading-tight">
+            Kosongkan juga sheet <strong>"Transaksi"</strong> di Google Sheets Anda
+          </span>
+        </label>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <button type="button" onclick="toggleModal('modalClearHistory', false)" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
+          Batal
+        </button>
+        <button type="button" onclick="confirmExecuteClearHistory()" class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Ya, Bersihkan Riwayat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification System -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+      Aplikasi Rekap Tabungan & Hutang Modal &bull; Terhubung dengan Google Sheets API
+    </div>
+  </footer>
+
+  <script>
+    // State Awal Sesuai Persis dengan Gambar Sheet yang Diberikan Pengguna
+    const initialBalances = {
+      // TABUNGAN (Total: 25.312.570)
+      "JENIUS": 7386423,
+      "BRI": 6354576,
+      "SEABANK": 10507882,
+      "BLUE BCA": 1038665,
+      "BCA": 500,
+      "JAGOO": 10000,
+      "NEOBANK": 9424,
+      "SHOPEEPAY": 5000,
+      "GOPAY": 100,
+
+      // HUTANG MODAL (Total: 5.400.000)
+      "SHOPEE PAYLATER": 300000,
+      "SPINJAM": 3800000,
+      "TIKTOK PAYLATER": 1300000
+    };
+
+    // Pos daftar rekening dibuat dinamis agar dapat ditambah/dikelola
+    let tabunganKeys = ["JENIUS", "BRI", "SEABANK", "BLUE BCA", "BCA", "JAGOO", "NEOBANK", "SHOPEEPAY", "GOPAY"];
+    let hutangKeys = ["SHOPEE PAYLATER", "SPINJAM", "TIKTOK PAYLATER"];
+
+    // In-memory application state with URL getter fallback
+    let state = {
+      balances: { ...initialBalances },
+      transactions: [],
+      googleSheetUrl: ""
+    };
+
+    function getActiveSheetUrl() {
+      if (state.googleSheetUrl) return state.googleSheetUrl;
+      const inputVal = document.getElementById('scriptUrlInput')?.value?.trim();
+      if (inputVal) {
+        state.googleSheetUrl = inputVal;
+        return inputVal;
+      }
+      return "";
+    }
+
+    // Format Rupiah Helper
+    function formatIDR(val) {
+      return 'Rp ' + Number(val).toLocaleString('id-ID');
+    }
+
+    // Unformat Rupiah String to Number
+    function unformatIDR(str) {
+      if (!str) return 0;
+      return parseInt(str.toString().replace(/[^0-9]/g, ''), 10) || 0;
+    }
+
+    // Format input field as user types
+    function formatRupiahInput(input) {
+      const num = unformatIDR(input.value);
+      input.value = num ? num.toLocaleString('id-ID') : '';
+    }
+
+    // Render Kartu Akun Tabungan dan Hutang
+    function renderAccounts() {
+      // 1. Hitung Subtotal Tabungan
+      let totalTabungan = 0;
+      const tabunganContainer = document.getElementById('tabunganListContainer');
+      tabunganContainer.innerHTML = '';
+
+      tabunganKeys.forEach(key => {
+        const val = state.balances[key] || 0;
+        totalTabungan += val;
+
+        const isDefault = initialBalances.hasOwnProperty(key);
+        const card = document.createElement('div');
+        card.className = "group relative p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 transition-all flex items-center justify-between";
+        card.innerHTML = `
+          <div class="pr-2 truncate">
+            <span class="text-xs font-bold text-slate-700 block truncate" title="${key}">${key}</span>
+            <span class="text-[11px] text-slate-400">Tabungan</span>
+          </div>
+          <div class="text-right flex items-center gap-1.5">
+            <span class="text-xs sm:text-sm font-extrabold text-emerald-700 block">${formatIDR(val)}</span>
+            ${!isDefault ? `
+              <button onclick="removeAccount('${key}', 'TABUNGAN')" title="Hapus Pos ${key}" class="opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-700 p-1 transition-opacity">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        tabunganContainer.appendChild(card);
+      });
+
+      // 2. Hitung Subtotal Hutang Modal
+      let totalHutang = 0;
+      const hutangContainer = document.getElementById('hutangListContainer');
+      hutangContainer.innerHTML = '';
+
+      hutangKeys.forEach(key => {
+        const val = state.balances[key] || 0;
+        totalHutang += val;
+
+        const isDefault = initialBalances.hasOwnProperty(key);
+        const card = document.createElement('div');
+        card.className = "group relative p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-rose-300 transition-all flex items-center justify-between";
+        card.innerHTML = `
+          <div class="pr-2 truncate">
+            <span class="text-xs font-bold text-slate-700 block truncate" title="${key}">${key}</span>
+            <span class="text-[11px] text-slate-400">Hutang Modal</span>
+          </div>
+          <div class="text-right flex items-center gap-1.5">
+            <span class="text-xs sm:text-sm font-extrabold text-rose-600 block">${formatIDR(val)}</span>
+            ${!isDefault ? `
+              <button onclick="removeAccount('${key}', 'HUTANG MODAL')" title="Hapus Pos ${key}" class="opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-700 p-1 transition-opacity">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        hutangContainer.appendChild(card);
+      });
+
+      // 3. Update Dashboard Headers & Summary
+      document.getElementById('totalTabunganDisplay').innerText = formatIDR(totalTabungan);
+      document.getElementById('headerTabunganTotal').innerText = formatIDR(totalTabungan);
+      document.getElementById('tabunganCountBadge').innerText = `${tabunganKeys.length} Rekening`;
+
+      document.getElementById('totalHutangDisplay').innerText = formatIDR(totalHutang);
+      document.getElementById('headerHutangTotal').innerText = formatIDR(totalHutang);
+      document.getElementById('hutangCountBadge').innerText = `${hutangKeys.length} Sumber`;
+
+      // Sesuai Sheet: Total Aset Liquid = Total Tabungan + Hutang Modal
+      const totalLiquid = totalTabungan + totalHutang;
+      document.getElementById('totalLiquidDisplay').innerText = formatIDR(totalLiquid);
+
+      // Net Worth (Kekayaan Bersih = Tabungan - Hutang)
+      const netWorth = totalTabungan - totalHutang;
+      document.getElementById('netWorthDisplay').innerText = formatIDR(netWorth);
+
+      // Update dropdown option labels to reflect current balances
+      updateDropdownLabels();
+    }
+
+    function updateDropdownLabels() {
+      const select = document.getElementById('accountSelect');
+      const currentSelected = select.value;
+      
+      let html = '<optgroup label="TABUNGAN">';
+      tabunganKeys.forEach(k => {
+        html += `<option value="${k}">` + k + ` (Saldo: ${formatIDR(state.balances[k] || 0)})</option>`;
+      });
+      html += '</optgroup><optgroup label="HUTANG MODAL">';
+      hutangKeys.forEach(k => {
+        html += `<option value="${k}">` + k + ` (Hutang: ${formatIDR(state.balances[k] || 0)})</option>`;
+      });
+      html += '</optgroup>';
+      
+      select.innerHTML = html;
+      if (currentSelected && [...tabunganKeys, ...hutangKeys].includes(currentSelected)) {
+        select.value = currentSelected;
+      }
+    }
+
+    // Buka Modal Tambah Rekening dengan Tipe Pos yang Telah Dipilih
+    function openAddAccountModalWithType(type) {
+      if (type === 'TABUNGAN') {
+        document.getElementById('radioNewTabungan').checked = true;
+      } else {
+        document.getElementById('radioNewHutang').checked = true;
+      }
+      toggleModal('modalAddAccount', true);
+      setTimeout(() => document.getElementById('newAccountName').focus(), 100);
+    }
+
+    // Handle penambahan rekening / pos baru secara dinamis
+    function handleAccountSubmit(e) {
+      e.preventDefault();
+      const rawName = document.getElementById('newAccountName').value.trim();
+      const name = rawName.toUpperCase();
+      const typeRadio = document.querySelector('input[name="newAccountType"]:checked');
+      const type = typeRadio ? typeRadio.value : 'TABUNGAN';
+      const balance = unformatIDR(document.getElementById('newAccountBalance').value);
+
+      if (!name) {
+        showToast('Nama rekening/pos tidak boleh kosong!', 'error');
+        return;
+      }
+
+      // Cek apakah pos sudah ada
+      if (tabunganKeys.includes(name) || hutangKeys.includes(name)) {
+        showToast(`Rekening/Pos "${name}" sudah terdaftar!`, 'error');
+        return;
+      }
+
+      // Tambahkan ke kelompok yang sesuai
+      if (type === 'TABUNGAN') {
+        tabunganKeys.push(name);
+      } else {
+        hutangKeys.push(name);
+      }
+
+      state.balances[name] = balance;
+
+      // Jika ada saldo awal > 0, buat catatan transaksi saldo awal
+      if (balance > 0) {
+        const initTx = {
+          id: 'TX-INIT-' + Date.now().toString().slice(-4),
+          date: new Date().toISOString().split('T')[0],
+          account: name,
+          type: type === 'TABUNGAN' ? 'DEBIT' : 'KREDIT',
+          amount: balance,
+          category: 'Saldo Awal',
+          notes: 'Pendaftaran rekening baru',
+          resultingBalance: balance,
+          synced: false
+        };
+        state.transactions.unshift(initTx);
+      }
+
+      // Render ulang akun dan riwayat
+      renderAccounts();
+      renderTransactions();
+
+      // Reset form modal & tutup
+      document.getElementById('newAccountName').value = '';
+      document.getElementById('newAccountBalance').value = '';
+      toggleModal('modalAddAccount', false);
+
+      showToast(`Rekening ${name} (${type}) berhasil ditambahkan!`, 'success');
+
+      // Selalu kirim pembaruan ringkasan saldo ke Google Sheet
+      const activeUrl = getActiveSheetUrl();
+      if (activeUrl) {
+        syncSummaryToSheet();
+      }
+    }
+
+    // Hapus rekening tambahan
+    function removeAccount(accountName, type) {
+      if (type === 'TABUNGAN') {
+        tabunganKeys = tabunganKeys.filter(k => k !== accountName);
+      } else {
+        hutangKeys = hutangKeys.filter(k => k !== accountName);
+      }
+      delete state.balances[accountName];
+      renderAccounts();
+      showToast(`Pos ${accountName} telah dihapus`, 'info');
+      
+      const activeUrl = getActiveSheetUrl();
+      if (activeUrl) {
+        syncSummaryToSheet();
+      }
+    }
+
+    // Handle form submit
+    async function handleTransactionSubmit(e) {
+      e.preventDefault();
+
+      const typeRadio = document.querySelector('input[name="txType"]:checked');
+      const type = typeRadio ? typeRadio.value : 'DEBIT';
+      const account = document.getElementById('accountSelect').value;
+      const nominal = unformatIDR(document.getElementById('nominalInput').value);
+      const date = document.getElementById('txDate').value || new Date().toISOString().split('T')[0];
+      const category = document.getElementById('txCategory').value;
+      const notes = document.getElementById('txNotes').value || '-';
+
+      if (nominal <= 0) {
+        showToast('Nominal harus lebih dari 0', 'error');
+        return;
+      }
+
+      // Hitung perubahan saldo berdasarkan tipe akun
+      const isTabungan = tabunganKeys.includes(account);
+      const prevBalance = state.balances[account] || 0;
+      let newBalance = prevBalance;
+
+      if (isTabungan) {
+        // Tabungan: Debit = Tambah saldo, Kredit = Kurang saldo
+        if (type === 'DEBIT') {
+          newBalance = prevBalance + nominal;
+        } else {
+          newBalance = prevBalance - nominal;
+        }
+      } else {
+        // Hutang Modal: Debit = Pelunasan hutang (Kurang hutang), Kredit = Penarikan pinjaman baru (Tambah hutang)
+        if (type === 'DEBIT') {
+          newBalance = Math.max(0, prevBalance - nominal);
+        } else {
+          newBalance = prevBalance + nominal;
+        }
+      }
+
+      // Update state saldo
+      state.balances[account] = newBalance;
+
+      const newTx = {
+        id: 'TX-' + Date.now().toString().slice(-6),
+        date: date,
+        account: account,
+        type: type,
+        amount: nominal,
+        category: category,
+        notes: notes,
+        resultingBalance: newBalance,
+        synced: false
+      };
+
+      state.transactions.unshift(newTx);
+
+      // Render ulang tampilan
+      renderAccounts();
+      renderTransactions();
+
+      // Reset form nominal dan notes
+      document.getElementById('nominalInput').value = '';
+      document.getElementById('txNotes').value = '';
+
+      showToast(`Transaksi ${formatIDR(nominal)} berhasil dicatat pada ${account}!`, 'success');
+
+      // Coba kirim ke Google Sheets otomatis jika URL terpasang
+      const activeUrl = getActiveSheetUrl();
+      if (activeUrl) {
+        await syncSingleTransactionToSheet(newTx);
+      }
+    }
+
+    // Buka Modal Konfirmasi Bersihkan Riwayat
+    function openClearHistoryModal() {
+      if (state.transactions.length === 0) {
+        showToast('Riwayat transaksi sudah kosong.', 'info');
+        return;
+      }
+      document.getElementById('clearFromSheetCheckbox').checked = false;
+      toggleModal('modalClearHistory', true);
+    }
+
+    // Eksekusi Pembersihan Riwayat Transaksi
+    async function confirmExecuteClearHistory() {
+      const shouldClearSheet = document.getElementById('clearFromSheetCheckbox').checked;
+      toggleModal('modalClearHistory', false);
+
+      state.transactions = [];
+      renderTransactions();
+      showToast('Riwayat transaksi di aplikasi berhasil dibersihkan!', 'success');
+
+      // Jika user juga ingin membersihkan riwayat di Google Sheets
+      if (shouldClearSheet) {
+        const activeUrl = getActiveSheetUrl();
+        if (!activeUrl) {
+          showToast('URL Google Sheets belum diatur, hanya dibersihkan lokal.', 'info');
+          return;
+        }
+
+        updateSyncBadge('syncing');
+        try {
+          const payload = {
+            action: "CLEAR_TRANSACTIONS"
+          };
+
+          await fetch(activeUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          updateSyncBadge('connected');
+          showToast('Sheet "Transaksi" di Google Sheets juga telah dikosongkan!', 'success');
+        } catch (err) {
+          console.error("Gagal membersihkan transaksi di sheet:", err);
+          updateSyncBadge('error');
+          showToast('Gagal mengosongkan sheet di Google Sheets.', 'error');
+        }
+      }
+    }
+
+    // Hapus satu transaksi individual
+    function deleteSingleTransaction(txId) {
+      state.transactions = state.transactions.filter(t => t.id !== txId);
+      renderTransactions();
+      showToast('Transaksi dihapus dari riwayat aplikasi.', 'info');
+    }
+
+    function renderTransactions() {
+      const tbody = document.getElementById('transactionTableBody');
+      const emptyState = document.getElementById('emptyTableState');
+
+      tbody.innerHTML = '';
+
+      if (state.transactions.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      state.transactions.forEach(tx => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+
+        const isDebit = tx.type === 'DEBIT';
+        const typeBadge = isDebit 
+          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">DEBIT</span>'
+          : '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">KREDIT</span>';
+
+        const amountColor = isDebit ? 'text-emerald-700' : 'text-rose-600';
+        const amountSign = isDebit ? '+' : '-';
+
+        const syncStatus = tx.synced
+          ? '<span class="text-emerald-600 font-medium flex items-center justify-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Tersinkron</span>'
+          : '<span class="text-slate-400 font-medium flex items-center justify-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Lokal</span>';
+
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">${tx.date}</td>
+          <td class="px-4 py-3 font-semibold text-slate-800">${tx.account}</td>
+          <td class="px-4 py-3">${typeBadge}</td>
+          <td class="px-4 py-3 font-bold ${amountColor} whitespace-nowrap">${amountSign} ${formatIDR(tx.amount)}</td>
+          <td class="px-4 py-3">
+            <span class="block font-medium text-slate-800">${tx.category}</span>
+            <span class="text-[11px] text-slate-400">${tx.notes}</span>
+          </td>
+          <td class="px-4 py-3 font-semibold text-slate-700">${formatIDR(tx.resultingBalance)}</td>
+          <td class="px-4 py-3 text-center">${syncStatus}</td>
+          <td class="px-4 py-3 text-center">
+            <button onclick="deleteSingleTransaction('${tx.id}')" title="Hapus catatan ini" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all inline-flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Sync satu transaksi ke Google Sheet
+    async function syncSingleTransactionToSheet(tx) {
+      const url = getActiveSheetUrl();
+      if (!url) return;
+
+      updateSyncBadge('syncing');
+      try {
+        const payload = {
+          action: "ADD_TRANSACTION",
+          transaction: tx,
+          balances: state.balances,
+          tabunganKeys: tabunganKeys,
+          hutangKeys: hutangKeys
+        };
+
+        // Kirim request ke Google Apps Script Web App
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        tx.synced = true;
+        renderTransactions();
+        updateSyncBadge('connected');
+        showToast('Tersinkron ke Google Sheet!', 'success');
+      } catch (err) {
+        console.error("Gagal sinkron:", err);
+        updateSyncBadge('error');
+        showToast('Gagal sinkron ke Google Sheet (periksa koneksi)', 'error');
+      }
+    }
+
+    // Sync Khusus Ringkasan Saldo (Ketika Tambah / Hapus Rekening)
+    async function syncSummaryToSheet() {
+      const url = getActiveSheetUrl();
+      if (!url) return;
+
+      updateSyncBadge('syncing');
+      try {
+        const payload = {
+          action: "UPDATE_SUMMARY",
+          balances: state.balances,
+          tabunganKeys: tabunganKeys,
+          hutangKeys: hutangKeys
+        };
+
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        updateSyncBadge('connected');
+        showToast('Ringkasan Saldo di Google Sheet diperbarui!', 'success');
+      } catch (err) {
+        console.error("Gagal sync ringkasan:", err);
+        updateSyncBadge('error');
+      }
+    }
+
+    // Sync massal semua data & tabel ke Google Sheet
+    async function syncAllToGoogleSheets() {
+      const url = getActiveSheetUrl();
+      if (!url) {
+        toggleModal('modalSheets', true);
+        showToast('Silakan masukkan URL Google Apps Script Anda terlebih dahulu', 'error');
+        return;
+      }
+
+      updateSyncBadge('syncing');
+      showToast('Sedang menyinkronkan seluruh saldo ke Google Sheet...', 'info');
+
+      try {
+        const payload = {
+          action: "SYNC_ALL",
+          balances: state.balances,
+          transactions: state.transactions,
+          tabunganKeys: tabunganKeys,
+          hutangKeys: hutangKeys
+        };
+
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        // Tandai semua tersinkron
+        state.transactions.forEach(t => t.synced = true);
+        renderTransactions();
+        updateSyncBadge('connected');
+        showToast('Seluruh saldo & riwayat berhasil disinkronkan ke Google Sheet!', 'success');
+      } catch (err) {
+        console.error("Sync error:", err);
+        updateSyncBadge('error');
+        showToast('Koneksi Google Sheet terhambat.', 'error');
+      }
+    }
+
+    function updateSyncBadge(status) {
+      const badge = document.getElementById('syncBadge');
+      if (status === 'syncing') {
+        badge.className = "px-2 py-0.5 rounded text-[11px] font-medium bg-amber-100 text-amber-800 flex items-center gap-1";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Mengirim...';
+      } else if (status === 'connected') {
+        badge.className = "px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-800 flex items-center gap-1";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> G-Sheets Aktif';
+      } else if (status === 'error') {
+        badge.className = "px-2 py-0.5 rounded text-[11px] font-medium bg-rose-100 text-rose-800 flex items-center gap-1";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Gagal Kirim';
+      }
+    }
+
+    // Export Data Transaksi ke format CSV
+    function exportToCSV() {
+      if (state.transactions.length === 0) {
+        showToast('Belum ada data untuk diekspor', 'info');
+        return;
+      }
+
+      let csv = 'ID,Tanggal,Rekening,Tipe,Nominal,Kategori,Keterangan,Saldo Akhir\n';
+      state.transactions.forEach(t => {
+        csv += `"${t.id}","${t.date}","${t.account}","${t.type}","${t.amount}","${t.category}","${t.notes}","${t.resultingBalance}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `rekap_keuangan_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('File CSV berhasil diunduh!', 'success');
+    }
+
+    // Dynamic Helper Text based on Debit / Kredit
+    function updateTypeHelper() {
+      const typeRadio = document.querySelector('input[name="txType"]:checked');
+      const type = typeRadio ? typeRadio.value : 'DEBIT';
+      const desc = document.getElementById('txTypeDesc');
+      if (type === 'DEBIT') {
+        desc.className = "text-[11px] text-emerald-600 mt-1.5 font-medium";
+        desc.innerText = "* Debit menambah saldo rekening tabungan atau melunasi sisa hutang modal.";
+      } else {
+        desc.className = "text-[11px] text-rose-600 mt-1.5 font-medium";
+        desc.innerText = "* Kredit mengurangi saldo rekening tabungan atau menambah pinjaman hutang modal baru.";
+      }
+    }
+
+    // Modal Control
+    function toggleModal(modalId, show) {
+      const modal = document.getElementById(modalId);
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // Save Google Script URL
+    function saveSheetUrl() {
+      const val = document.getElementById('scriptUrlInput').value.trim();
+      state.googleSheetUrl = val;
+      const alertElem = document.getElementById('saveSheetAlert');
+      alertElem.classList.remove('hidden');
+      setTimeout(() => alertElem.classList.add('hidden'), 3000);
+      updateSyncBadge(val ? 'connected' : 'ready');
+      showToast('URL Google Apps Script disimpan!', 'success');
+    }
+
+    // Salin Kode Apps Script ke Clipboard
+    function copyAppsScriptCode() {
+      const codeText = document.getElementById('codeBlock').innerText;
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = codeText;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Kode Google Apps Script berhasil disalin!', 'success');
+      } catch (err) {
+        showToast('Gagal menyalin kode', 'error');
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    // TARIK DATA SALDO DARI GOOGLE SHEET (Sheet: Ringkasan_Saldo)
+    function fetchBalancesFromGoogleSheets() {
+      const url = getActiveSheetUrl();
+      if (!url) {
+        toggleModal('modalSheets', true);
+        showToast('Silakan masukkan URL Google Apps Script Anda terlebih dahulu', 'error');
+        return;
+      }
+
+      updateSyncBadge('syncing');
+      showToast('Sedang mengambil data saldo dari sheet Ringkasan_Saldo...', 'info');
+
+      // Menggunakan JSONP untuk menghindari CORS issue pada Google Apps Script Web App
+      const cbName = 'gas_balance_cb_' + Date.now();
+      let isHandled = false;
+
+      const cleanup = () => {
+        delete window[cbName];
+        const scriptElem = document.getElementById(cbName);
+        if (scriptElem) scriptElem.remove();
+      };
+
+      // Set timeout jika jaringan bermasalah
+      const timer = setTimeout(() => {
+        if (!isHandled) {
+          isHandled = true;
+          cleanup();
+          updateSyncBadge('error');
+          showToast('Waktu permintaan habis. Pastikan izin Web App diatur ke "Anyone" dan versi sudah diperbarui.', 'error');
+        }
+      }, 12000);
+
+      // JSONP callback
+      window[cbName] = function(data) {
+        if (isHandled) return;
+        isHandled = true;
+        clearTimeout(timer);
+        cleanup();
+        handleSyncBalancesResponse(data);
+      };
+
+      // Buat elemen script untuk memanggil Apps Script Web App
+      const script = document.createElement('script');
+      script.id = cbName;
+      const sep = url.includes('?') ? '&' : '?';
+      script.src = `${url}${sep}callback=${cbName}&_t=${Date.now()}`;
+      script.onerror = function() {
+        if (isHandled) return;
+        isHandled = true;
+        clearTimeout(timer);
+        cleanup();
+        
+        // Fallback fetch jika JSONP terhalang CSP
+        fetch(url + sep + `_t=${Date.now()}`)
+          .then(res => res.json())
+          .then(data => handleSyncBalancesResponse(data))
+          .catch(err => {
+            console.error("Gagal menarik saldo:", err);
+            updateSyncBadge('error');
+            showToast('Gagal terhubung ke Google Sheet. Periksa URL dan izin Web App Anda.', 'error');
+          });
+      };
+
+      document.body.appendChild(script);
+    }
+
+    // Menerapkan data saldo yang ditarik dari Google Sheet ke aplikasi
+    function handleSyncBalancesResponse(data) {
+      if (!data || data.status !== 'success') {
+        updateSyncBadge('error');
+        showToast(data?.message || 'Gagal membaca sheet Ringkasan_Saldo', 'error');
+        return;
+      }
+
+      // Perbarui daftar rekening dan saldo
+      if (data.tabunganKeys && data.tabunganKeys.length > 0) {
+        tabunganKeys = data.tabunganKeys;
+      }
+      if (data.hutangKeys && data.hutangKeys.length > 0) {
+        hutangKeys = data.hutangKeys;
+      }
+      if (data.balances) {
+        state.balances = { ...data.balances };
+      }
+
+      // Render ulang seluruh tampilan
+      renderAccounts();
+      updateSyncBadge('connected');
+      showToast('Saldo dan daftar rekening berhasil disinkronkan dari Google Sheet!', 'success');
+    }
+
+    // Toast Notification Creator
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let bg = 'bg-slate-800 text-white';
+      if (type === 'success') bg = 'bg-emerald-600 text-white';
+      if (type === 'error') bg = 'bg-rose-600 text-white';
+
+      toast.className = `${bg} px-4 py-2.5 rounded-xl text-xs font-semibold shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2`;
+      toast.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Initialize Default States on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Set default input date ke hari ini
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('txDate').value = today;
+
+      // Render awal data dari screenshot
+      renderAccounts();
+      renderTransactions();
+    });
+  </script>
+</body>
+</html>
