@@ -73,4 +73,4 @@ MIT License – see the `LICENSE` file for details.
 
 ---
 *Generated with [C‍laude Code](https://claude.com/c‍laude-code)*
-By ERIE PUTRANTO
+By ERIE PUTRANTO - JOGJA
