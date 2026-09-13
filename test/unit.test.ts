@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { buildCsv, sanitizeCsvField } from "../server/csv";
 import { computeBalance } from "../shared/balance";
 import { accountInputSchema, transactionInputSchema } from "../shared/schemas";
+import {
+  createSessionToken,
+  verifyCredentials,
+  verifySessionToken,
+} from "../server/auth";
 import { formatAmountInput, formatIDR, toInteger } from "../src/lib/format";
 
 describe("computeBalance (PRD 7.1 & 7.2)", () => {
@@ -120,5 +125,39 @@ describe("input validation schemas (PRD 7.3 & 9)", () => {
       notes: null,
     });
     expect(parsed.success).toBe(true);
+  });
+});
+
+describe("autentikasi (server/auth)", () => {
+  beforeEach(() => {
+    process.env.AUTH_USERNAME = "admin";
+    process.env.AUTH_PASSWORD = "rahasia";
+    delete process.env.AUTH_SECRET;
+  });
+
+  it("menerima kredensial yang benar", () => {
+    expect(verifyCredentials("admin", "rahasia")).toBe(true);
+  });
+
+  it("menolak username atau password yang salah", () => {
+    expect(verifyCredentials("admin", "salah")).toBe(false);
+    expect(verifyCredentials("user", "rahasia")).toBe(false);
+    expect(verifyCredentials("ADMIN", "rahasia")).toBe(false);
+  });
+
+  it("membuat dan memverifikasi token sesi", () => {
+    const token = createSessionToken();
+    expect(verifySessionToken(token)).toBe(true);
+    expect(verifySessionToken(undefined)).toBe(false);
+    expect(verifySessionToken("bukan.token")).toBe(false);
+  });
+
+  it("menolak token yang diubah", () => {
+    const token = createSessionToken();
+    const [payload, signature] = token.split(".");
+    const forged = Buffer.from(JSON.stringify({ u: "admin", exp: Date.now() + 60_000 }))
+      .toString("base64url");
+    expect(verifySessionToken(`${forged}.${signature}`)).toBe(false);
+    expect(verifySessionToken(`${payload}.${signature}x`)).toBe(false);
   });
 });

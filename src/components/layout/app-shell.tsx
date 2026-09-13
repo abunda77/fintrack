@@ -1,7 +1,8 @@
 import { useTheme } from "next-themes";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Moon, Settings, Sun, Wallet } from "lucide-react";
+import { LayoutDashboard, LogOut, Moon, Settings, Sun, Wallet } from "lucide-react";
+import { useAuth } from "@/app/auth-context";
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -19,6 +20,8 @@ function ThemeToggle() {
 }
 
 export function AppShell() {
+  const { username, logout } = useAuth();
+
   return (
     <div className="min-h-dvh bg-muted/30">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
@@ -61,6 +64,15 @@ export function AppShell() {
               )}
             </NavLink>
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Keluar"
+              title={username ? `Keluar (${username})` : "Keluar"}
+              onClick={() => void logout()}
+            >
+              <LogOut className="size-4" />
+            </Button>
           </nav>
         </div>
       </header>

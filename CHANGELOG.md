@@ -7,8 +7,19 @@ dan versioning mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
 ## [Unreleased]
 
+### Ditambahkan
+- **Autentikasi username/password** untuk mengakses aplikasi. Kredensial dibaca dari `.env` (`AUTH_USERNAME`, `AUTH_PASSWORD`) dan dibandingkan secara konstan-waktu (`timingSafeEqual`).
+- **Sesi cookie bertanda tangan** — `POST /api/auth/login` menerbitkan cookie `fintrack_session` (HttpOnly, SameSite=Lax, `Secure` saat produksi) berisi token bertanda tangan HMAC-SHA256; tidak ada penyimpanan sesi di server.
+- **Endpoint autentikasi** — `POST /api/auth/login`, `POST /api/auth/logout`, dan `GET /api/auth/session`. Seluruh rute `/api/*` selain `/api/health` dan `/api/auth/*` kini dilindungi middleware `requireAuth` dan mengembalikan `401` tanpa sesi valid.
+- **Rate limit login** — maksimal 10 percobaan per 15 menit per IP untuk mencegah brute force.
+- **Halaman login** di frontend, `AuthProvider`, dan tombol keluar pada header; sesi yang berakhir otomatis mengembalikan pengguna ke halaman login.
+- **Variabel environment baru** — `AUTH_USERNAME`, `AUTH_PASSWORD` (wajib), serta `AUTH_SECRET` dan `AUTH_SESSION_HOURS` (opsional).
+- **Unit test autentikasi** untuk verifikasi kredensial dan validasi token sesi (termasuk token yang dipalsukan).
+
 ### Diubah
 - Penerjemahan sebagian teks antarmuka ke Bahasa Indonesia pada halaman dasbor, pengaturan, akun, dan transaksi.
+- Server kini gagal start dengan pesan jelas bila `AUTH_USERNAME` atau `AUTH_PASSWORD` belum diisi.
+- `.env.example` dan `README.md` diperbarui dengan konfigurasi autentikasi, daftar variabel environment, dan perintah npm yang sesuai.
 
 ## [1.0.0] - 2026-09-12
 

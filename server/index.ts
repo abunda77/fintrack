@@ -1,8 +1,10 @@
 import { createApp } from "./app";
+import { assertAuthConfigured } from "./auth";
 import { migrate, seedIfEmpty } from "./db";
 
 const PORT = Number(process.env.PORT || 3001);
 
+assertAuthConfigured();
 migrate();
 seedIfEmpty();
 

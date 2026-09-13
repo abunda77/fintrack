@@ -6,6 +6,8 @@ import { accountsRouter } from "./routes/accounts";
 import { transactionsRouter } from "./routes/transactions";
 import { dashboardRouter } from "./routes/dashboard";
 import { syncRouter } from "./routes/sync";
+import { authRouter } from "./routes/auth";
+import { requireAuth } from "./auth";
 import { errorMiddleware, notFoundApiHandler } from "./errors";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,6 +20,12 @@ export function createApp(): express.Express {
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true });
   });
+
+  // Endpoint autentikasi publik (login/logout/cek sesi).
+  app.use("/api/auth", authRouter);
+
+  // Seluruh endpoint API sisanya memerlukan sesi yang valid.
+  app.use("/api", requireAuth);
 
   app.use("/api/accounts", accountsRouter);
   app.use("/api/transactions", transactionsRouter);

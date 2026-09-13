@@ -1,7 +1,9 @@
 import type {
   Account,
   AccountInput,
+  AuthSession,
   DashboardSummary,
+  LoginInput,
   SyncLog,
   SyncSettings,
   SyncSettingsInput,
@@ -32,15 +34,24 @@ export class ClientError extends Error {
   }
 }
 
+const UNAUTHORIZED_EVENT = "fintrack:unauthorized";
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
     res = await fetch(path, {
+      credentials: "same-origin",
       ...init,
       headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     });
   } catch {
     throw new ClientError(0, "NETWORK_ERROR", "Tidak dapat terhubung ke server. Pastikan server API berjalan.", {});
+  }
+
+  if (res.status === 401 && !path.startsWith("/api/auth/")) {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+    }
   }
 
   if (!res.ok) {
@@ -65,6 +76,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   getHealth: () => request<{ ok: boolean }>("/api/health"),
+
+  getSession: () => request<AuthSession>("/api/auth/session"),
+
+  login: (input: LoginInput) =>
+    request<AuthSession>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+
+  logout: () => request<AuthSession>("/api/auth/logout", { method: "POST" }),
 
   getDashboard: () => request<DashboardSummary>("/api/dashboard/summary"),
 
@@ -136,3 +157,5 @@ export function transactionsExportUrl(params: TransactionQuery): string {
   }
   return `/api/transactions/export.csv?${qs.toString()}`;
 }
+
+export { UNAUTHORIZED_EVENT };

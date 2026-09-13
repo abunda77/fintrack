@@ -59,6 +59,11 @@ export const transactionInputSchema = z.object({
     .default(null),
 });
 
+export const loginInputSchema = z.object({
+  username: z.string().trim().min(1, "Username wajib diisi.").max(100, "Username terlalu panjang."),
+  password: z.string().min(1, "Password wajib diisi.").max(200, "Password terlalu panjang."),
+});
+
 export const syncSettingsInputSchema = z.object({
   endpointUrl: z
     .string()
@@ -74,6 +79,12 @@ export const syncSettingsInputSchema = z.object({
 export type AccountInput = z.infer<typeof accountInputSchema>;
 export type TransactionInput = z.infer<typeof transactionInputSchema>;
 export type SyncSettingsInput = z.infer<typeof syncSettingsInputSchema>;
+export type LoginInput = z.infer<typeof loginInputSchema>;
+
+export interface AuthSession {
+  authenticated: boolean;
+  username: string | null;
+}
 
 export interface Account {
   id: string;
