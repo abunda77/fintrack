@@ -17,13 +17,13 @@ export function DashboardPage() {
   return (
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Overzicht van rekening bank, e-wallet en hutang modal in één oogopslag.
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl font-semibold tracking-tight">Dasbor</h1>
+          <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+            Ringkasan rekening bank, e-wallet, dan hutang modal dalam satu tampilan.
           </p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto max-sm:w-full">
           <AddAccountDialog defaultType="TABUNGAN" />
         </div>
       </div>

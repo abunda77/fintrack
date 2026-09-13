@@ -46,7 +46,21 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --color-positive: var(--positive);
+    --color-positive-foreground: var(--positive-foreground);
+    --color-negative: var(--negative);
+    --color-negative-foreground: var(--negative-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
 }
+
+/* Hallmark · genre: modern-minimal · macrostructure: Stat-Led · theme: Cobalt
+ * enrichment: none (typography only) · nav: N1b · footer: Ft2
+ * pre-emit critique: P5 H5 E4 S4 R5 V4
+ * Semantik finans (positif/negatif/waarschuwing) + merk-accent (cobalt),
+ * gedefinieerd per mode zodat kleuren niet verschuiven tussen light en dark. */
 
 :root {
     --background: oklch(1 0 0);
@@ -81,6 +95,14 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    --positive: oklch(0.5 0.14 152);
+    --positive-foreground: oklch(0.985 0 0);
+    --negative: oklch(0.5 0.16 18);
+    --negative-foreground: oklch(0.985 0 0);
+    --warning: oklch(0.52 0.15 62);
+    --warning-foreground: oklch(0.985 0 0);
+    --brand: oklch(0.5 0.2 255);
+    --brand-foreground: oklch(0.985 0 0);
 }
 
 .dark {
@@ -115,6 +137,14 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+    --positive: oklch(0.76 0.17 153);
+    --positive-foreground: oklch(0.145 0 0);
+    --negative: oklch(0.72 0.17 20);
+    --negative-foreground: oklch(0.145 0 0);
+    --warning: oklch(0.8 0.16 72);
+    --warning-foreground: oklch(0.145 0 0);
+    --brand: oklch(0.68 0.18 255);
+    --brand-foreground: oklch(0.145 0 0);
 }
 
 @layer base {
@@ -126,5 +156,9 @@
     }
   html {
     @apply font-sans;
+    overflow-x: clip;
+    }
+  body {
+    overflow-x: clip;
     }
 }

@@ -56,9 +56,9 @@ const EMPTY_FILTERS: Filters = { search: "", from: "", to: "", accountId: "", ty
 function syncBadge(status: Transaction["syncStatus"]) {
   if (!status) return null;
   const meta: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-    SUCCESS: { label: "Gesync", variant: "default" },
-    PENDING: { label: "Pending", variant: "secondary" },
-    FAILED: { label: "Gefaald", variant: "destructive" },
+    SUCCESS: { label: "Tersinkron", variant: "default" },
+    PENDING: { label: "Tertunda", variant: "secondary" },
+    FAILED: { label: "Gagal", variant: "destructive" },
   };
   const { label, variant } = meta[status];
   return (

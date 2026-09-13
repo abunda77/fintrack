@@ -65,14 +65,14 @@ export function AccountSection({
 
   function archive(account: Account) {
     archiveMutation.mutate(account.id, {
-      onSuccess: () => toast.success(`Akun "${account.name}" gearchiveerd.`),
+      onSuccess: () => toast.success(`Akun "${account.name}" diarsipkan.`),
       onError: (err) => toast.error(err.message),
     });
   }
 
   function remove(target: Account) {
     deleteMutation.mutate(target.id, {
-      onSuccess: () => toast.success(`Akun "${target.name}" verwijderd.`),
+      onSuccess: () => toast.success(`Akun "${target.name}" dihapus.`),
       onError: (err) => toast.error(err.message),
     });
   }
@@ -89,8 +89,8 @@ export function AccountSection({
         </CardTitle>
         <CardDescription>
           {type === "TABUNGAN"
-            ? "Rekening bank en e-wallet"
-            : "Sumber pinjaman, paylater en kewajiban"}
+            ? "Rekening bank dan e-wallet"
+            : "Sumber pinjaman, paylater, dan kewajiban"}
         </CardDescription>
       </CardHeader>
       <CardContent className="divide-y">
@@ -100,7 +100,7 @@ export function AccountSection({
               <p className="truncate font-medium">{account.name}</p>
               <p className="text-xs text-muted-foreground">
                 {account.transactionCount}{" "}
-                {account.transactionCount === 1 ? "transactie" : "transacties"}
+                {account.transactionCount === 1 ? "transaksi" : "transaksi"}
               </p>
             </div>
             <p
@@ -114,7 +114,7 @@ export function AccountSection({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Acties voor ${account.name}`}
+                  aria-label={`Aksi untuk ${account.name}`}
                 >
                   <MoreHorizontal className="size-4" />
                 </Button>
@@ -129,7 +129,7 @@ export function AccountSection({
                   disabled={account.transactionCount > 0}
                   title={
                     account.transactionCount > 0
-                      ? "Hapus alleen akun zonder riwayat. Arsipkan om te verbergen."
+                      ? "Hapus hanya akun tanpa riwayat. Arsipkan untuk menyembunyikan."
                       : undefined
                   }
                   onSelect={() => setDeleteTarget(account)}
@@ -153,18 +153,18 @@ export function AccountSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus akun?</AlertDialogTitle>
             <AlertDialogDescription>
-              Akun "{deleteTarget?.name ?? ""}" dan z'n transacties worden permanent
-              verwijderd. Deze actie kan niet worden ongedaan gemaakt.
+              Akun "{deleteTarget?.name ?? ""}" dan seluruh transaksinya akan dihapus
+              permanen. Tindakan ini tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuleer</AlertDialogCancel>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               disabled={deleteMutation.isPending}
               onClick={() => deleteTarget && remove(deleteTarget)}
             >
-              {deleteMutation.isPending ? "Verwijderen..." : "Hapus"}
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

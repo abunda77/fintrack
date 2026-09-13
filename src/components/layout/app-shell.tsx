@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Wallet } from "lucide-react";
+import { LayoutDashboard, Moon, Settings, Sun, Wallet } from "lucide-react";
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -22,29 +22,41 @@ export function AppShell() {
   return (
     <div className="min-h-dvh bg-muted/30">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-emerald-600 text-white">
+        <div className="mx-auto flex h-14 min-w-0 max-w-7xl items-center gap-4 px-4 sm:px-6">
+          <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2">
+            <span className="grid size-8 place-items-center rounded-lg bg-brand text-brand-foreground">
               <Wallet className="size-4" />
             </span>
-            <span className="font-semibold tracking-tight">FinTrack</span>
-            <span className="hidden text-xs text-muted-foreground sm:inline">
+            <span className="text-sm font-semibold tracking-tight">FinTrack</span>
+            <span className="hidden text-xs font-normal text-muted-foreground sm:inline">
               Personal Finance
             </span>
           </Link>
 
-          <nav className="ml-auto flex items-center gap-1">
+          <nav className="ml-auto flex items-center gap-1" aria-label="Navigasi utama">
             <NavLink to="/" end>
               {({ isActive }) => (
-                <Button variant={isActive ? "secondary" : "ghost"} size="sm">
-                  Dashboard
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Dashboard"
+                  className={isActive ? "bg-brand/12 text-foreground" : undefined}
+                >
+                  <LayoutDashboard className="size-3.5" />
+                  <span className="hidden sm:inline">Dashboard</span>
                 </Button>
               )}
             </NavLink>
             <NavLink to="/pengaturan" end>
               {({ isActive }) => (
-                <Button variant={isActive ? "secondary" : "ghost"} size="sm">
-                  Pengaturan
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Pengaturan"
+                  className={isActive ? "bg-brand/12 text-foreground" : undefined}
+                >
+                  <Settings className="size-3.5" />
+                  <span className="hidden sm:inline">Pengaturan</span>
                 </Button>
               )}
             </NavLink>
@@ -58,7 +70,7 @@ export function AppShell() {
       </main>
 
       <footer className="border-t py-5">
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="px-4 text-center text-xs text-muted-foreground [overflow-wrap:anywhere]">
           FinTrack Personal Finance &middot; Pencatatan Tabungan &amp; Hutang Modal
         </p>
       </footer>

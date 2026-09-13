@@ -13,9 +13,9 @@ import { CloudDownload, CloudUpload, RefreshCw } from "lucide-react";
 
 function statusBadge(status: "IDLE" | "SUCCESS" | "FAILED" | undefined | null) {
   const meta: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-    SUCCESS: { label: "Geslaagd", variant: "default" },
-    FAILED: { label: "Gefaald", variant: "destructive" },
-    IDLE: { label: "Nog geen sync", variant: "secondary" },
+    SUCCESS: { label: "Berhasil", variant: "default" },
+    FAILED: { label: "Gagal", variant: "destructive" },
+    IDLE: { label: "Belum ada sinkronisasi", variant: "secondary" },
   };
   const { label, variant } = meta[status ?? "IDLE"];
   return <Badge variant={variant} className="w-fit">{label}</Badge>;
@@ -50,8 +50,8 @@ export function SyncSettingsCard() {
           <CloudUpload className="size-4 text-muted-foreground" />
           Sinkronisasi Google Sheets
         </CardTitle>
-        <CardDescription>
-          Optioneel. Sinkronisierung is nooit een vereiste om transacties lokaal op te slaan.
+        <CardDescription className="min-w-0 [overflow-wrap:anywhere]">
+          Opsional. Sinkronisasi tidak pernah menjadi syarat untuk menyimpan transaksi secara lokal.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -68,8 +68,8 @@ export function SyncSettingsCard() {
                 value={endpointUrl}
                 onChange={(e) => setEndpointUrl(e.target.value.trim())}
               />
-              <p className="text-xs text-muted-foreground">
-                URL dari Google Apps Script web-app (deploy). Bewaar eerst, dan kan je pushen.
+              <p className="text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                URL dari Google Apps Script web-app (deploy). Simpan terlebih dahulu, lalu dapat melakukan push.
               </p>
             </div>
 
@@ -79,8 +79,8 @@ export function SyncSettingsCard() {
                 onCheckedChange={(checked: boolean) => setIsEnabled(checked)}
                 size="sm"
               />
-              <Label className="font-normal">
-                Activeer automatic sinkronisasi na elke transactie
+              <Label className="min-w-0 font-normal [overflow-wrap:anywhere]">
+                Aktifkan sinkronisasi otomatis setelah setiap transaksi
               </Label>
             </div>
 
@@ -90,7 +90,7 @@ export function SyncSettingsCard() {
                 {statusBadge(settings.lastStatus)}
                 {settings.lastSyncedAt ? (
                   <span>
-                    Laatste sync {formatDateTimeID(settings.lastSyncedAt)}
+                    Sinkronisasi terakhir {formatDateTimeID(settings.lastSyncedAt)}
                   </span>
                 ) : null}
               </div>
@@ -104,7 +104,7 @@ export function SyncSettingsCard() {
           </>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
           <Button
             size="sm"
             disabled={busy}
@@ -112,13 +112,13 @@ export function SyncSettingsCard() {
               saveMutation.mutate(
                 { endpointUrl: endpointUrl === "" ? null : endpointUrl, isEnabled },
                 {
-                  onSuccess: () => toast.success("Instellingen sinkronisasi opgeslagen."),
+                  onSuccess: () => toast.success("Pengaturan sinkronisasi disimpan."),
                   onError: (err) => toast.error(err.message),
                 },
               )
             }
           >
-            {saveMutation.isPending ? "Opslaan..." : "Opslaan instellingen"}
+            {saveMutation.isPending ? "Menyimpan..." : "Simpan pengaturan"}
           </Button>
           <Button
             variant="outline"
@@ -127,7 +127,7 @@ export function SyncSettingsCard() {
             onClick={() =>
               pushMutation.mutate(undefined, {
                 onSuccess: (res) =>
-                  toast.success(`Push gedaan: ${res.pushed} transacties naar spreadsheet.`),
+                  toast.success(`Push berhasil: ${res.pushed} transaksi ke spreadsheet.`),
                 onError: (err) => toast.error(err.message),
               })
             }
@@ -143,7 +143,7 @@ export function SyncSettingsCard() {
               pullMutation.mutate(undefined, {
                 onSuccess: (res) =>
                   toast.success(
-                    `Pull gedaan: ${res.created} akun nieuw, ${res.updated} saldo bijgewerkt.`,
+                    `Pull berhasil: ${res.created} akun baru, ${res.updated} saldo diperbarui.`,
                   ),
                 onError: (err) => toast.error(err.message),
               })
@@ -169,7 +169,7 @@ export function SyncLogsTable() {
           <RefreshCw className="size-4 text-muted-foreground" />
           Sinkronisasi log
         </CardTitle>
-        <CardDescription>De laatste 50 sinkronisasi-acties.</CardDescription>
+        <CardDescription>50 tindakan sinkronisasi terakhir.</CardDescription>
       </CardHeader>
       <CardContent>
         {logsQuery.isLoading && !logs ? (
@@ -178,17 +178,17 @@ export function SyncLogsTable() {
           <div className="divide-y">
             {!logs || logs.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                Nog geen sinkronisasi-acties.
+                Belum ada tindakan sinkronisasi.
               </p>
             ) : (
               logs.map((log) => (
                 <div key={log.id} className="flex items-center gap-3 py-2 px-1">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">
                       {log.operation === "PUSH_TRANSACTION"
-                        ? "Push transactie"
+                        ? "Push transaksi"
                         : log.operation === "PUSH_ALL"
-                          ? "Push alles"
+                          ? "Push semua"
                           : "Pull saldo"}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
@@ -202,7 +202,7 @@ export function SyncLogsTable() {
                     }
                     className="w-fit ml-auto"
                   >
-                    {log.status === "SUCCESS" ? "Geslaagd" : log.status === "FAILED" ? "Gefaald" : "Pending"}
+                    {log.status === "SUCCESS" ? "Berhasil" : log.status === "FAILED" ? "Gagal" : "Tertunda"}
                   </Badge>
                 </div>
               ))

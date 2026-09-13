@@ -86,14 +86,14 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="size-4" />
-          Voeg akun toe
+          Tambah akun
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Voeg akun toe</DialogTitle>
+          <DialogTitle>Tambah akun</DialogTitle>
           <DialogDescription>
-            Maak een nieuw pos voor tabungan of hutang modal.
+            Buat pos baru untuk tabungan atau hutang modal.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="grid gap-4">
@@ -102,7 +102,7 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
             <Input
               {...register("name")}
               id="ap-name"
-              placeholder="Bijv. BRI Extra, SPayLater..."
+              placeholder="Misal: BRI Extra, SPayLater..."
               aria-invalid={errName ? true : undefined}
             />
             {errName ? <p className="text-xs text-destructive">{errName}</p> : null}
@@ -145,7 +145,7 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
               aria-invalid={errBalance ? true : undefined}
             />
             <p className="text-xs text-muted-foreground">
-              Hoeveelheid in Rupiah (bijv. 1.500.000). Leeg = Rp 0.
+              Jumlah dalam Rupiah (misal: 1.500.000). Kosong = Rp 0.
             </p>
             {errBalance ? <p className="text-xs text-destructive">{errBalance}</p> : null}
           </div>
@@ -153,11 +153,11 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Annuleer
+                Batal
               </Button>
             </DialogClose>
             <Button type="submit" disabled={mutations.isPending}>
-              {mutations.isPending ? "Opslaan..." : "Opslaan"}
+              {mutations.isPending ? "Menyimpan..." : "Simpan"}
             </Button>
           </DialogFooter>
         </form>

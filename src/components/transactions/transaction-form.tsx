@@ -223,7 +223,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
             <Label htmlFor="tx-notes">Catatan</Label>
             <Textarea
               id="tx-notes"
-              placeholder="Keterangan tambahan (optioneel)"
+              placeholder="Keterangan tambahan (opsional)"
               {...register("notes")}
               aria-invalid={notesError ? true : undefined}
             />
@@ -237,7 +237,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
               size="sm"
               disabled={mutation.isPending || accounts.length === 0}
             >
-              {mutation.isPending ? "Opslaan..." : "Opslaan transactie"}
+              {mutation.isPending ? "Menyimpan..." : "Simpan transaksi"}
             </Button>
           </div>
         </form>
