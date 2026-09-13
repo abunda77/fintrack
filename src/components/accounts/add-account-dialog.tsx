@@ -1,6 +1,6 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus } from "lucide-react";
 import { accountInputSchema } from "../../../shared/schemas";
 import { ClientError } from "@/lib/api";
@@ -27,6 +27,7 @@ type AccountField = "name" | "type" | "openingBalance";
 export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "HUTANG_MODAL" }) {
   const [open, setOpen] = useState(false);
   const [balanceDraft, setBalanceDraft] = useState("0");
+  const typeGroupId = useId();
   const mutations = useCreateAccount();
 
   const {
@@ -37,14 +38,14 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
     clearErrors,
     reset,
     formState,
-    getValues,
+    control,
   } = useForm<RawAccountForm>({
     defaultValues: { name: "", type: defaultType, openingBalance: "" },
   });
 
   register("type");
 
-  const values = getValues();
+  const selectedType = useWatch({ control, name: "type" });
   const errName = formState.errors?.name?.message;
   const errType = formState.errors?.type?.message;
   const errBalance = formState.errors?.openingBalance?.message;
@@ -111,21 +112,26 @@ export function AddAccountDialog({ defaultType }: { defaultType: "TABUNGAN" | "H
           <div className="grid gap-1.5">
             <Label>Tipe akun</Label>
             <RadioGroup
-              value={values.type ?? defaultType}
-              onValueChange={(value: string) => setValue("type", value)}
+              value={selectedType ?? defaultType}
+              onValueChange={(value: string) => setValue("type", value, { shouldValidate: true })}
             >
               {[
                 { value: "TABUNGAN", label: "Tabungan" },
                 { value: "HUTANG_MODAL", label: "Hutang Modal" },
-              ].map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50"
-                >
-                  <RadioGroupItem value={opt.value} />
-                  <span>{opt.label}</span>
-                </label>
-              ))}
+              ].map((opt) => {
+                const optionId = `${typeGroupId}-${opt.value}`;
+                return (
+                  <div
+                    key={opt.value}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50"
+                  >
+                    <RadioGroupItem id={optionId} value={opt.value} />
+                    <label className="cursor-pointer" htmlFor={optionId}>
+                      {opt.label}
+                    </label>
+                  </div>
+                );
+              })}
             </RadioGroup>
             {errType ? <p className="text-xs text-destructive">{errType}</p> : null}
           </div>
