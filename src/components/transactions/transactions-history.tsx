@@ -53,6 +53,40 @@ type Filters = {
 
 const EMPTY_FILTERS: Filters = { search: "", from: "", to: "", accountId: "", type: "", category: "" };
 
+/* ── deterministic color assignment for varied-text columns ── */
+const ACCOUNT_COLORS = [
+  "text-blue-600 dark:text-blue-400",
+  "text-violet-600 dark:text-violet-400",
+  "text-emerald-600 dark:text-emerald-400",
+  "text-amber-600 dark:text-amber-400",
+  "text-rose-600 dark:text-rose-400",
+  "text-cyan-600 dark:text-cyan-400",
+  "text-fuchsia-600 dark:text-fuchsia-400",
+  "text-teal-600 dark:text-teal-400",
+] as const;
+
+const CATEGORY_COLORS = [
+  "text-sky-600 dark:text-sky-400",
+  "text-orange-600 dark:text-orange-400",
+  "text-indigo-600 dark:text-indigo-400",
+  "text-lime-600 dark:text-lime-400",
+  "text-pink-600 dark:text-pink-400",
+  "text-emerald-600 dark:text-emerald-400",
+  "text-yellow-600 dark:text-yellow-400",
+  "text-purple-600 dark:text-purple-400",
+  "text-red-600 dark:text-red-400",
+  "text-teal-600 dark:text-teal-400",
+] as const;
+
+/** Simple string → palette-index hash, deterministic per value */
+function hashColor(value: string, palette: readonly string[]): string {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return palette[Math.abs(hash) % palette.length];
+}
+
 function syncBadge(status: Transaction["syncStatus"]) {
   if (!status) return null;
   const meta: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
@@ -358,40 +392,52 @@ export function TransactionsHistory() {
                   </TableCell>
                 </TableRow>
               ) : (
-                (data?.items ?? []).map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>{formatDateID(transaction.transactionDate)}</TableCell>
-                    <TableCell className="font-medium">{transaction.accountName}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={transaction.type === "DEBIT" ? "default" : "secondary"}
-                        className="w-fit"
-                      >
-                        {transaction.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {transaction.notes ? (
-                        <span title={transaction.notes}>
-                          {transaction.category}
-                        </span>
-                      ) : (
-                        transaction.category
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {transaction.type === "DEBIT" ? "+" : "−"}
-                      {formatIDR(transaction.amount)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {formatIDR(transaction.resultingBalance)}
-                    </TableCell>
-                    <TableCell>{syncBadge(transaction.syncStatus)}</TableCell>
-                    <TableCell>
-                      <DeleteRowDialog transaction={transaction} />
-                    </TableCell>
-                  </TableRow>
-                ))
+                (data?.items ?? []).map((transaction) => {
+                  const isDebit = transaction.type === "DEBIT";
+                  const amountColor = isDebit
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400";
+                  const balanceNegative = transaction.resultingBalance < 0;
+                  const balanceColor = balanceNegative
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-blue-600 dark:text-blue-400";
+                  return (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{formatDateID(transaction.transactionDate)}</TableCell>
+                      <TableCell className={`font-medium ${hashColor(transaction.accountName ?? "", ACCOUNT_COLORS)}`}>
+                        {transaction.accountName}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={isDebit ? "default" : "secondary"}
+                          className={`w-fit ${isDebit ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"}`}
+                        >
+                          {transaction.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className={hashColor(transaction.category ?? "", CATEGORY_COLORS)}>
+                        {transaction.notes ? (
+                          <span title={transaction.notes}>
+                            {transaction.category}
+                          </span>
+                        ) : (
+                          transaction.category
+                        )}
+                      </TableCell>
+                      <TableCell className={`text-right tabular-nums font-semibold ${amountColor}`}>
+                        {isDebit ? "+" : "−"}
+                        {formatIDR(transaction.amount)}
+                      </TableCell>
+                      <TableCell className={`text-right tabular-nums ${balanceColor}`}>
+                        {formatIDR(transaction.resultingBalance)}
+                      </TableCell>
+                      <TableCell>{syncBadge(transaction.syncStatus)}</TableCell>
+                      <TableCell>
+                        <DeleteRowDialog transaction={transaction} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
