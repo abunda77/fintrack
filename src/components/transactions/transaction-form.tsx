@@ -76,7 +76,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
     }
     mutation.mutate(parsed.data, {
       onSuccess: () => {
-        toast.success("Transactie opgeslagen.");
+        toast.success("Transaksi tersimpan.");
         reset();
         setAmountDraft("0");
       },
@@ -103,16 +103,16 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="size-4 text-muted-foreground" />
-          Voeg transactie toe
+          Tambah Transaksi
         </CardTitle>
         <CardDescription>
-          Voeg debit (masuk) of kredit (keluar) toe aan een akun.
+          Tambahkan debit (masuk) atau kredit (keluar) ke akun.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5 sm:col-span-2">
-            <Label>Jenis transactie</Label>
+            <Label>Jenis Transaksi</Label>
             <RadioGroup
               value={selectedType}
               onValueChange={(value) => setValue("type", value as "DEBIT" | "KREDIT")}
@@ -135,20 +135,20 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
             <p className="text-xs text-muted-foreground">
               {selectedAccount
                 ? txTypeExplanation(selectedAccount.type, selectedType as "DEBIT" | "KREDIT")
-                : "Kies eerst een rekening om het effect op het saldo te zien."}
+                : "Pilih rekening terlebih dahulu untuk melihat efek pada saldo."}
             </p>
             {typeError ? <p className="text-xs text-destructive">{typeError}</p> : null}
           </div>
 
           <div className="grid gap-1.5 sm:col-span-2">
-            <Label>Rekening/pos</Label>
+            <Label>Rekening</Label>
             <Select
               value={selectedAccountId}
               onValueChange={(value: string) => setValue("accountId", value)}
               aria-invalid={accountError ? true : undefined}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Kies rekening..." />
+                <SelectValue placeholder="Pilih rekening..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -213,7 +213,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
               aria-invalid={categoryError ? true : undefined}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Kies categorie..." />
+                <SelectValue placeholder="Pilih kategori..." />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((category) => (

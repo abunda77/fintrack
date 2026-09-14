@@ -128,25 +128,25 @@ function DeleteRowDialog({ transaction }: { transaction: Transaction }) {
       </AlertDialogTrigger>
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>Hapus transactie?</AlertDialogTitle>
+          <AlertDialogTitle>Hapus transaksi?</AlertDialogTitle>
           <AlertDialogDescription>
-            {formatIDR(transaction.amount)} op {transaction.accountName} ({formatDateID(transaction.transactionDate)})
-            wordt soft-hapus. Saldo akun blijft behouden.
+            {formatIDR(transaction.amount)} pada {transaction.accountName} ({formatDateID(transaction.transactionDate)})
+            akan dihapus (soft delete). Saldo akun tetap dipertahankan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuleer</AlertDialogCancel>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={mutation.isPending}
             onClick={() =>
               mutation.mutate(transaction.id, {
-                onSuccess: () => toast.success("Transactie verwijderd."),
+                onSuccess: () => toast.success("Transaksi dihapus."),
                 onError: (err) => toast.error(err.message),
               })
             }
           >
-            {mutation.isPending ? "Verwijderen..." : "Hapus"}
+            {mutation.isPending ? "Menghapus..." : "Hapus"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -167,25 +167,25 @@ function ClearHistoryDialog({ total }: { total: number }) {
       </AlertDialogTrigger>
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>Hapus alle transacties?</AlertDialogTitle>
+          <AlertDialogTitle>Hapus semua transaksi?</AlertDialogTitle>
           <AlertDialogDescription>
-            Alle {total} transacties in de riwayat worden soft-hapus.
-            Saldo akun blijft volledig behouden.
+            Semua {total} transaksi di riwayat akan dihapus (soft delete).
+            Saldo akun tetap sepenuhnya dipertahankan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuleer</AlertDialogCancel>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={mutation.isPending}
             onClick={() =>
               mutation.mutate(undefined, {
-                onSuccess: () => toast.success("Riwayat transacties verwijderd."),
+                onSuccess: () => toast.success("Riwayat transaksi dihapus."),
                 onError: (err) => toast.error(err.message),
               })
             }
           >
-            {mutation.isPending ? "Verwijderen..." : "Hapus al"}
+            {mutation.isPending ? "Menghapus..." : "Hapus semua"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -236,28 +236,28 @@ export function TransactionsHistory() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Search className="size-4 text-muted-foreground" />
-          Riwayat transacties
+          Riwayat Transaksi
         </CardTitle>
         <CardDescription>
-          {loading ? "Laden..." : `${total} ${total === 1 ? "transactie" : "transacties"}`}
+          {loading ? "Memuat..." : `${total} ${total === 1 ? "transaksi" : "transaksi"}`}
         </CardDescription>
       </CardHeader>
       <div className="grid gap-2 px-(--card-spacing) sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative grid gap-1.5">
-          <Label htmlFor="f-search">Pencari</Label>
+          <Label htmlFor="f-search">Pencarian</Label>
           <div className="relative">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="f-search"
               className="pl-8!"
-              placeholder="Akun of catatan..."
+              placeholder="Akun atau catatan..."
               value={searchDraft}
               onChange={(e) => setSearchDraft(e.target.value)}
             />
           </div>
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="f-from">Vanaf</Label>
+          <Label htmlFor="f-from">Dari</Label>
           <Input
             id="f-from"
             type="date"
@@ -266,7 +266,7 @@ export function TransactionsHistory() {
           />
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="f-to">Tot</Label>
+          <Label htmlFor="f-to">Sampai</Label>
           <Input
             id="f-to"
             type="date"
@@ -281,10 +281,10 @@ export function TransactionsHistory() {
             onValueChange={(value: string) => patch({ accountId: value })}
           >
             <SelectTrigger className="w-full" id="f-account">
-              <SelectValue placeholder="Alle akun" />
+              <SelectValue placeholder="Semua akun" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Alle akun</SelectItem>
+              <SelectItem value="">Semua akun</SelectItem>
               <SelectGroup>
                 <SelectLabel>Tabungan</SelectLabel>
                 {accounts
@@ -312,10 +312,10 @@ export function TransactionsHistory() {
           <Label htmlFor="f-type">Jenis</Label>
           <Select value={filters.type} onValueChange={(value: string) => patch({ type: value })}>
             <SelectTrigger className="w-full" id="f-type">
-              <SelectValue placeholder="Alle typen" />
+              <SelectValue placeholder="Semua jenis" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Alle typen</SelectItem>
+              <SelectItem value="">Semua jenis</SelectItem>
               <SelectItem value="DEBIT">DEBIT (Masuk)</SelectItem>
               <SelectItem value="KREDIT">KREDIT (Keluar)</SelectItem>
             </SelectContent>
@@ -328,10 +328,10 @@ export function TransactionsHistory() {
             onValueChange={(value: string) => patch({ category: value })}
           >
             <SelectTrigger className="w-full" id="f-cat">
-              <SelectValue placeholder="Alle categorieen" />
+              <SelectValue placeholder="Semua kategori" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Alle categorieen</SelectItem>
+              <SelectItem value="">Semua kategori</SelectItem>
               {CATEGORIES.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -379,7 +379,7 @@ export function TransactionsHistory() {
                 <TableHead>Jenis</TableHead>
                 <TableHead>Kategori</TableHead>
                 <TableHead className="text-right">Nominal</TableHead>
-                <TableHead className="text-right">Saldo resultaat</TableHead>
+                <TableHead className="text-right">Saldo Hasil</TableHead>
                 <TableHead>Sync</TableHead>
                 <TableHead />
               </TableRow>
@@ -388,7 +388,7 @@ export function TransactionsHistory() {
               {(data?.items ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                    Geen transacties gevonden. Pas filters aan of voeg een nieuwe transactie toe.
+                    Tidak ada transaksi ditemukan. Sesuaikan filter atau tambahkan transaksi baru.
                   </TableCell>
                 </TableRow>
               ) : (

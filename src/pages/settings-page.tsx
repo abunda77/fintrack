@@ -21,8 +21,8 @@ export function SettingsPage() {
           <div className="ml-auto max-sm:w-full">
             <Badge variant={settings.data.isEnabled ? "default" : "secondary"}>
               {settings.data.isEnabled
-                ? "Sinkronisasi actief"
-                : "Sinkronisasi onactief"}
+                ? "Sinkronisasi aktif"
+                : "Sinkronisasi nonaktif"}
             </Badge>
           </div>
         ) : null}

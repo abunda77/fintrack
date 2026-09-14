@@ -35,8 +35,8 @@ export function DashboardPage() {
         >
           <AlertCircle className="size-5 shrink-0" />
           <p>
-            Kan de dashboard-data niet laden: {dashboard.error.message}. Herstel de
-            verbinding of laad de pagina opnieuw.
+            Tidak dapat memuat data dasbor: {dashboard.error.message}. Periksa
+            koneksi atau muat ulang halaman.
           </p>
         </div>
       ) : null}
