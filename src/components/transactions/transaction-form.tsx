@@ -1,6 +1,6 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { CATEGORIES, TX_TYPE_LABELS } from "../../../shared/categories";
 import { transactionInputSchema, type Account } from "../../../shared/schemas";
 import { txTypeExplanation } from "../../../shared/balance";
@@ -28,7 +28,8 @@ type TxField = "type" | "accountId" | "amount" | "transactionDate" | "category" 
 
 export function TransactionForm({ accounts }: { accounts: Account[] }) {
   const [amountDraft, setAmountDraft] = useState("0");
-  const { register, handleSubmit, setValue, setError, clearErrors, reset, formState, getValues } =
+  const typeGroupId = useId();
+  const { register, handleSubmit, setValue, setError, clearErrors, reset, formState, control } =
     useForm<RawTxForm>({
       defaultValues: {
         accountId: "",
@@ -46,9 +47,12 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
   register("type");
   register("category");
 
-  const values = getValues();
+  // useWatch (not getValues) so setValue() re-renders the controlled RadioGroup/Select.
+  const selectedType = useWatch({ control, name: "type" }) ?? "DEBIT";
+  const selectedAccountId = useWatch({ control, name: "accountId" }) ?? "";
+  const selectedCategory = useWatch({ control, name: "category" }) ?? "";
   const selectedAccount = accounts.find(
-    (account) => account.id === values.accountId,
+    (account) => account.id === selectedAccountId,
   );
   const fieldError = formState.errors;
 
@@ -110,22 +114,27 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
           <div className="grid gap-1.5 sm:col-span-2">
             <Label>Jenis transactie</Label>
             <RadioGroup
-              value={values.type ?? "DEBIT"}
+              value={selectedType}
               onValueChange={(value) => setValue("type", value as "DEBIT" | "KREDIT")}
             >
-              {Object.entries(TX_TYPE_LABELS).map(([value, label]) => (
-                <label
-                  key={value}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50"
-                >
-                  <RadioGroupItem value={value} />
-                  <span>{label}</span>
-                </label>
-              ))}
+              {Object.entries(TX_TYPE_LABELS).map(([value, label]) => {
+                const optionId = `${typeGroupId}-${value}`;
+                return (
+                  <div
+                    key={value}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50"
+                  >
+                    <RadioGroupItem id={optionId} value={value} />
+                    <label className="cursor-pointer" htmlFor={optionId}>
+                      {label}
+                    </label>
+                  </div>
+                );
+              })}
             </RadioGroup>
             <p className="text-xs text-muted-foreground">
               {selectedAccount
-                ? txTypeExplanation(selectedAccount.type, (values.type ?? "DEBIT") as "DEBIT" | "KREDIT")
+                ? txTypeExplanation(selectedAccount.type, selectedType as "DEBIT" | "KREDIT")
                 : "Kies eerst een rekening om het effect op het saldo te zien."}
             </p>
             {typeError ? <p className="text-xs text-destructive">{typeError}</p> : null}
@@ -134,7 +143,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
           <div className="grid gap-1.5 sm:col-span-2">
             <Label>Rekening/pos</Label>
             <Select
-              value={values.accountId ?? ""}
+              value={selectedAccountId}
               onValueChange={(value: string) => setValue("accountId", value)}
               aria-invalid={accountError ? true : undefined}
             >
@@ -199,7 +208,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
           <div className="grid gap-1.5 sm:col-span-2">
             <Label>Kategori</Label>
             <Select
-              value={values.category ?? ""}
+              value={selectedCategory}
               onValueChange={(value: string) => setValue("category", value)}
               aria-invalid={categoryError ? true : undefined}
             >
